@@ -1,0 +1,22 @@
+stages:
+    - workflow
+
+deploy_dev:
+    stage: workflow
+    environment:
+        name: Development
+    trigger:
+        include:
+            - local: 'pipelines/dmg-front-deploy-dev.yml'  # Child pipeline for development
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "main"'
+
+deploy_prod:
+    stage: workflow
+    environment:
+        name: Production
+    trigger:
+        include:
+            - local: 'pipelines/dmg-front-deploy-prod.yml'  # Child pipeline for prod
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "prod"'

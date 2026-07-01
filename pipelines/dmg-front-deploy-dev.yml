@@ -1,0 +1,38 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+
+build:
+  image: docker:24.0.9
+  stage: build
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+  only:
+    refs:
+      - main
+  tags:
+    - build-pdr
+  environment:
+    name: Development
+  script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker build -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
+
+deploy:
+  stage: deploy
+  only:
+    refs:
+      - main
+  tags:
+    - gitlab-dev
+  environment:
+    name: Development
+  script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - IMAGE_NAME=$IMAGE_TAG docker compose up -d
+    - docker system prune -fa
+    - rm -rf *

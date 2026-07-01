@@ -1,0 +1,10 @@
+version: '3.3'
+
+services:
+  dmg-front:
+    image: ${IMAGE_NAME}
+    container_name: dmg-front
+    ports:
+      - "3033:3000"
+    restart: unless-stopped
+    
